@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace YouSubtle.IO
+namespace YouSubtle
 {
 	public static class Directory
 	{
@@ -16,6 +16,7 @@ namespace YouSubtle.IO
 		public static DirectoryInfo GetFirstAncestor(this DirectoryInfo _this, Func<DirectoryInfo, bool> checker)
 		{
 			var stepParent = _this.Parent;
+			do
 			{
 				if(checker(stepParent))
 				{
@@ -33,7 +34,7 @@ namespace YouSubtle.IO
 
 
 		/// <summary>
-		/// Returns all the descendent files the satisfies all arguments passed. If none of arguments passed, it returns all descendent files.
+		/// Returns all the descendent files the satisfy all arguments passed. If none of the arguments passed, it returns all descendent files.
 		/// </summary>
 		/// <param name="_this"></param>
 		/// <param name="searchPattern">The search string to match against the names of files. This parameter can contain
@@ -70,6 +71,48 @@ namespace YouSubtle.IO
 			}
 
 			return files;
+		}
+
+
+
+		/// <summary>
+		/// Returns all the descendent directories the satisfy all arguments passed. If none of the arguments passed, it returns all descendent files.
+		/// </summary>
+		/// <param name="_this"></param>
+		/// <param name="searchPattern">The search string to match against the names of directories. This parameter can contain
+		//     a combination of valid literal path and wildcard (* and ?) characters, but it
+		//     doesn't support regular expressions. The default pattern is "*", which returns
+		//     all files.</param>
+		/// <param name="fileSelector"></param>
+		/// <param name="directParentDirSelector"></param>
+		/// <returns></returns>
+		public static IEnumerable<DirectoryInfo> GetDescendentDirectories( this DirectoryInfo _this, 
+																	string searchPattern=null, 
+																	Func<DirectoryInfo, bool> directorySelector = null, 
+																	Func<DirectoryInfo, bool> directParentDirSelector = null)
+		{
+			List<DirectoryInfo> directories = new List<DirectoryInfo>();
+
+			foreach(var directory in _this.GetDirectories(searchPattern))
+			{
+				if(directorySelector == null || directorySelector(directory))
+				{
+					directories.Add(directory);
+				}
+			}
+
+			foreach(var dir in _this.GetDirectories())
+			{
+				if(directParentDirSelector != null && directParentDirSelector(dir) == false)	
+				{
+					continue;
+				}
+
+				var childDirectorySubDirectories = GetDescendentDirectories(dir, searchPattern, directorySelector, directParentDirSelector);
+				directories.AddRange(childDirectorySubDirectories);
+			}
+
+			return directories;
 		}
 
 
