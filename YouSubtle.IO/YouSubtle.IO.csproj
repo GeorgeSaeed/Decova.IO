@@ -1,9 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netStandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
+    <Version>0.0.98</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="obj_\**" />
+    <EmbeddedResource Remove="obj_\**" />
+    <None Remove="obj_\**" />
+  </ItemGroup>
 
 </Project>

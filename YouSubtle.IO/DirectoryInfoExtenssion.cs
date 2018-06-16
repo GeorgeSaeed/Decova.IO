@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace YouSubtle
 {
-	public static class Directory
+	public static class DirectoryInfoExtenssion
 	{
 		/// <summary>
 		/// Returns the first ancestor found that satisfies the chekcer function
@@ -13,7 +13,7 @@ namespace YouSubtle
 		/// <param name="_this"></param>
 		/// <param name="checker"></param>
 		/// <returns></returns>
-		public static DirectoryInfo GetFirstAncestor(this DirectoryInfo _this, Func<DirectoryInfo, bool> checker)
+		public static DirectoryInfo GetClosestAncestorWhere(this DirectoryInfo _this, Func<DirectoryInfo, bool> checker)
 		{
 			var stepParent = _this.Parent;
 			do
@@ -41,32 +41,27 @@ namespace YouSubtle
 		//     a combination of valid literal path and wildcard (* and ?) characters, but it
 		//     doesn't support regular expressions. The default pattern is "*", which returns
 		//     all files.</param>
-		/// <param name="fileSelector"></param>
+		/// <param name="ignoreDirectory">A function returns a boolean that determines whether to skip the argument directory or not.</param>
 		/// <param name="directParentDirSelector"></param>
 		/// <returns></returns>
 		public static IEnumerable<FileInfo> GetDescendentFiles( this DirectoryInfo _this, 
 																string searchPattern=null, 
-																Func<FileInfo, bool> fileSelector = null, 
-																Func<DirectoryInfo, bool> directParentDirSelector = null)
+																Func<DirectoryInfo, bool> ignoreDirectory = null
+																)
 		{
+
 			List<FileInfo> files = new List<FileInfo>();
+
+			if (ignoreDirectory != null && ignoreDirectory(_this)) return files;
 
 			foreach(var file in _this.GetFiles(searchPattern))
 			{
-				if(fileSelector == null || fileSelector(file))
-				{
-					files.Add(file);
-				}
+				files.Add(file);
 			}
 
 			foreach(var dir in _this.GetDirectories())
 			{
-				if(directParentDirSelector != null && directParentDirSelector(dir) == false)	
-				{
-					continue;
-				}
-
-				var childDirFiles = GetDescendentFiles(dir, searchPattern, fileSelector, directParentDirSelector);
+				var childDirFiles = GetDescendentFiles(dir, searchPattern, ignoreDirectory);
 				files.AddRange(childDirFiles);
 			}
 
@@ -86,76 +81,42 @@ namespace YouSubtle
 		/// <param name="fileSelector"></param>
 		/// <param name="directParentDirSelector"></param>
 		/// <returns></returns>
-		public static IEnumerable<DirectoryInfo> GetDescendentDirectories( this DirectoryInfo _this, 
-																	string searchPattern=null, 
-																	Func<DirectoryInfo, bool> directorySelector = null, 
-																	Func<DirectoryInfo, bool> directParentDirSelector = null)
+		public static IEnumerable<DirectoryInfo> GetDescendentDirectories(this DirectoryInfo _this, string searchPattern=null)
 		{
-			List<DirectoryInfo> directories = new List<DirectoryInfo>();
-
+			List<DirectoryInfo> output = new List<DirectoryInfo>();
 			foreach(var directory in _this.GetDirectories(searchPattern))
 			{
-				if(directorySelector == null || directorySelector(directory))
-				{
-					directories.Add(directory);
-				}
+				output.Add(directory);
 			}
 
 			foreach(var dir in _this.GetDirectories())
 			{
-				if(directParentDirSelector != null && directParentDirSelector(dir) == false)	
-				{
-					continue;
-				}
-
-				var childDirectorySubDirectories = GetDescendentDirectories(dir, searchPattern, directorySelector, directParentDirSelector);
-				directories.AddRange(childDirectorySubDirectories);
+				output.AddRange(GetDescendentDirectories(dir, searchPattern));
 			}
 
-			return directories;
+			return output;
 		}
-
-
+	
 		/// <summary>
-		/// You doubt that it's not working when the container hierarcy of the required directory is missing
-		/// the last one or more parts. Make a check.
+		/// Returns true if the item (file or directory path) existis and it's a descendant of this directory.
 		/// </summary>
-		/// <param name="dir"></param>
-		/// <param name="maxNoOfTrials"></param>
-		public static void EnsureDirectory(this DirectoryInfo dir, int maxNoOfTrials = 5)
+		/// <param name="_this"></param>
+		/// <param name="fileOrDirectoryPath"></param>
+		/// <returns></returns>
+		public static bool DoesItemBelongToMe(this DirectoryInfo _this, string fileOrDirectoryPath)
 		{
-			bool success = false;
-
-			Exception raisedException = null;
-
-			if(dir.Exists)
+			if(fileOrDirectoryPath.Length < _this.FullName.Length)
 			{
-				success = true;
+				return false;
+			}
+			else if(fileOrDirectoryPath.Substring(0, _this.FullName.Length) != _this.FullName)
+			{
+				return false;
 			}
 			else
 			{
-				for(int x=0; x<maxNoOfTrials; x++)
-				{
-					try
-					{
-						dir.Create();
-						success = true;
-						break;
-					}
-					catch (Exception expt)
-					{
-						raisedException = expt;
-						success = false;
-					}
-				}
-			}
-
-			if(! success)
-			{
-				throw new IOException($"Couldn't ensure directory [{raisedException}]", raisedException);
+				return File.Exists(fileOrDirectoryPath) || Directory.Exists(fileOrDirectoryPath);
 			}
 		}
-
-	
 	}
 }
