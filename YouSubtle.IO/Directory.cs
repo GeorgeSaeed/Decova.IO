@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Linq;
 
 namespace YouSubtle.IO
 {
@@ -46,6 +47,46 @@ namespace YouSubtle.IO
 			if(! success)
 			{
 				throw new IOException($"Couldn't ensure directory [{raisedException}]", raisedException);
+			}
+		}
+
+
+		public static DirectoryInfo ClosestCommonAncestorOf(IEnumerable<string> fileAndDirectoryPaths)
+		{
+			List<string[]> filesDirParts = fileAndDirectoryPaths.Select(f => f.Split(new char[] { '\\', '/' })).ToList();
+
+			int minLength = filesDirParts.Min(prts => prts.Length);
+
+			StringBuilder path = new StringBuilder();
+
+			List<string> commonParts = new List<string>();
+
+			for(int x=0; x<minLength; x++)
+			{
+				var distinct = filesDirParts.Select(itemPrts => itemPrts[x]).Distinct();
+				if(distinct.Count() == 1)
+				{
+					commonParts.Add(distinct.First());
+				}
+				else 
+				{
+					break;
+				}
+			}
+
+			if(commonParts.Any() == false)
+			{
+				return null;
+			}
+			else
+			{
+				var dir = new DirectoryInfo(string.Join("\\", commonParts.ToArray()));
+				if(dir.Exists == false)
+				{
+					throw new IOException($"Common directory [{dir}] doesn't exist!");
+				}
+
+				return dir;
 			}
 		}
 
