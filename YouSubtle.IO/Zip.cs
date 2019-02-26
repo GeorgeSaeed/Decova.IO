@@ -65,7 +65,7 @@ namespace YouSubtle.IO
 				foreach (var entry in archive.Entries.Where(e => fileSelector(e)))
 				{
 					// Gets the full path to ensure that relative segments are removed.
-					string destinationPath = Path.GetFullPath(Path.Combine(destinationDirectory, entry.FullName));
+					string destinationPath = System.IO.Path.GetFullPath(Path.Combine(destinationDirectory, entry.FullName));
 
 					entry.ExtractToFile(destinationPath);
 					destinationPaths.Add(destinationPath);
