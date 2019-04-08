@@ -22,15 +22,34 @@ namespace YouSubtle.IO
 			return string.Join(pathSeparator, segments);
 		}
 
-		/// <summary>
-		/// 1. In case path is an absolute one and belongs to the reference directory it returns the relative path (with no preceding path separator character).
-		/// 2. In case path is an absolute one but doesn't belong to the reference directory it throws an InvalidOperationException.
-		/// 3. In case path is already a relative path it returns it and removes the starting path separator character if any.
-		/// </summary>
-		/// <param name="referenceDir"></param>
-		/// <param name="path"></param>
-		/// <returns></returns>
-		public static string EnsureRelativeTo(string referenceDir, string path)
+        /// <summary>
+        /// Gets the path separator according to the environment platform.
+        /// </summary>
+        private static char PathSeparator
+        {
+            get
+            {
+                switch (Environment.OSVersion.Platform)
+                {
+                    case PlatformID.Win32NT:
+                        return '\\';
+                    case PlatformID.Unix:
+                    default:
+                        return '/';
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 1. In case path is an absolute one and belongs to the reference directory it returns the relative path (with no preceding path separator character).
+        /// 2. In case path is an absolute one but doesn't belong to the reference directory it throws an InvalidOperationException.
+        /// 3. In case path is already a relative path it returns it and removes the starting path separator character if any.
+        /// </summary>
+        /// <param name="referenceDir"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string EnsureRelativeTo(string referenceDir, string path)
 		{
 			if(path.Contains(":")) // absolute
 			{
