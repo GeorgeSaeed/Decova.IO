@@ -8,70 +8,61 @@ namespace XUnitTestProject1
 {
 	public class UnitTest1
 	{
-		//[Fact]
-		//public void Test1()
-		//{
-		//	try
-		//	{
-		//		var foundFiles =  new DirectoryInfo(@"D:\CsScriptExecuter\ConsoleApp1\bin\Debug\netcoreapp2.1")
-		//		.GetDescendentFiles("System.Runtime.dll");
-		//	}
-		//	catch(Exception)
-		//	{
-		//		Assert.True(false);
-		//	}
-			
-				
-		//}
 		[Fact]
-		public void PathComposer_EnsureRelativeTo_NonrelatedPathAndReference()
+		public void PathPob_EnsureRelativeTo_NonrelatedPathAndReference()
 		{
 			string path = @"D:\Test1\Test2";
 			string referenceDir = @"C:\Windows";
 
 			void faulty()
 			{
-				PathComposer.EnsureRelativeTo(referenceDir, path);
+				PathPob.EnsureRelativeTo(referenceDir, path);
 			};
 
 			Assert.Throws<InvalidOperationException>(()=>faulty());
 		}
 
 		[Fact]
-		public void PathComposer_EnsureAbsolute_NonrelatedPathAndReference()
+		public void PathPob_EnsureAbsolute_NonrelatedPathAndReference()
 		{
 			string path = @"D:\Test1\Test2";
 			string referenceDir = @"C:\Windows";
 
 			void faulty()
 			{
-				PathComposer.EnsureAbsolutePath(referenceDir, path);
+				PathPob.EnsureAbsolutePath(referenceDir, path);
 			};
 
 			Assert.Throws<InvalidOperationException>(() => faulty());
 		}
 
 		[Fact]
-		public void PathComposer_EnsureAbsolute_ValidAbsPathAndReference()
+		public void PathPob_EnsureAbsolute_ValidAbsPathAndReference()
 		{
 			string path = @"D:\Test1\Test2";
 			string referenceDir = @"D:\";
 
-			string result = PathComposer.EnsureAbsolutePath(referenceDir, path);
+			string result = PathPob.EnsureAbsolutePath(referenceDir, path);
 
 			Assert.True(result == path);
 		}
 
 		[Fact]
-		public void PathComposer_EnsureRelativeTo_ValidAbsPathAndReference()
+		public void PathPob_EnsureRelativeTo_ValidAbsPathAndReference()
 		{
 			string path = @"D:\Test1\Test2";
 			string referenceDir = @"D:\";
 
-			string result = PathComposer.EnsureRelativeTo(referenceDir, path);
+			string result = PathPob.EnsureRelativeTo(referenceDir, path);
 
 			Assert.True(result == "Test1\\Test2");
 		}
 
+        [Fact]
+        public void Smoke()
+        {
+            new FileInfo("D:\\testx\\testy\\test.txt").EnsureDirectory();
+            new DirectoryInfo(@"D:\1\2\3\4\5").Ensure();
+        }
 	}
 }

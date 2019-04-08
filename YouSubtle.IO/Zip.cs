@@ -10,13 +10,14 @@ namespace YouSubtle.IO
 {
 	public class Zip
 	{
-		private string _filePath;
+		private readonly string _filePath;
 		public Zip(string filePath)
 		{
 			this._filePath = filePath;
 		}
 
-		public string ReadEntryAllText(Func<ZipArchiveEntry, bool> singleFileSelector, Encoding encoding = null)
+		public string ReadEntryAllText(Func<ZipArchiveEntry, bool> singleFileSelector, 
+                                       Encoding encoding = null)
 		{
 			string allText;
 

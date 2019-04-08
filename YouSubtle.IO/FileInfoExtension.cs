@@ -9,7 +9,7 @@ namespace YouSubtle
     public static class FileInfoExtension
     {
 		/// <summary>
-		/// Returns the first ancestor found that satisfies the chekcer function
+		/// Returns the nearest ancestor found that satisfies the chekcer function
 		/// </summary>
 		/// <param name="_this"></param>
 		/// <param name="checker"></param>
@@ -32,17 +32,17 @@ namespace YouSubtle
 
 			return null;
 		}
-    
-		
-		/// <summary>
-		/// You doubt that it's not working when the container hierarcy of the required directory is missing
-		/// the last one or more parts. Make a check.
-		/// </summary>
-		/// <param name="dir"></param>
-		/// <param name="maxNoOfTrials"></param>
-		public static void EnsureDirectory(this FileInfo _this)
+
+
+        /// <summary>
+        /// Ensures the existence of the the directory of the file. Only the drive pre-existence is required. All parts of hierarchy
+        /// will be created if not existing.
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="maxNoOfTrials"></param>
+        public static void EnsureDirectory(this FileInfo _this)
 		{
-			YouSubtle.IO.Directory.EnsureDirectory(_this.Directory.FullName);
+            _this.Directory.Ensure();
 		}
 	}
 }

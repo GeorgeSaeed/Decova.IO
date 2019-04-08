@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace YouSubtle
 {
@@ -103,7 +104,7 @@ namespace YouSubtle
 		/// <param name="_this"></param>
 		/// <param name="fileOrDirectoryPath"></param>
 		/// <returns></returns>
-		public static bool DoesItemBelongToMe(this DirectoryInfo _this, string fileOrDirectoryPath)
+		public static bool BelongsToMe(this DirectoryInfo _this, string fileOrDirectoryPath)
 		{
 			if(fileOrDirectoryPath.Length < _this.FullName.Length)
 			{
@@ -118,5 +119,50 @@ namespace YouSubtle
 				return File.Exists(fileOrDirectoryPath) || Directory.Exists(fileOrDirectoryPath);
 			}
 		}
-	}
+
+
+        /// <summary>
+        /// Ensures the existence of the directory. Only the drive pre-existence is required. All parts of hierarchy
+        /// will be created if not existing.
+        /// </summary>
+        /// <param name="directory"></param>
+        public static void Ensure(this DirectoryInfo directory)
+        {
+            if (directory == null) throw new ArgumentNullException("directory");
+
+            bool success = false;
+
+            Exception raisedException = null;
+
+            if (directory.Exists)
+            {
+                success = true;
+            }
+            else
+            {
+                for (int x = 0; x < 30; x++)
+                {
+                    try
+                    {
+                        directory.Create();
+                        directory.Refresh();
+                        success = true;
+                        break;
+                    }
+                    catch (Exception expt)
+                    {
+                        raisedException = expt;
+                        Thread.Sleep(300);
+                        success = false;
+                    }
+                }
+            }
+
+            if (!success)
+            {
+                throw new IOException($"Couldn't ensure directory [{directory.FullName}]", raisedException);
+            }
+        }
+
+    }
 }
