@@ -16,7 +16,7 @@ namespace XUnitTestProject1
 
 			void faulty()
 			{
-				PathPob.EnsureRelativeTo(referenceDir, path);
+				PathTechie.EnsureRelativeTo(referenceDir, path);
 			};
 
 			Assert.Throws<InvalidOperationException>(()=>faulty());
@@ -30,7 +30,7 @@ namespace XUnitTestProject1
 
 			void faulty()
 			{
-				PathPob.EnsureAbsolutePath(referenceDir, path);
+				PathTechie.EnsureAbsolutePath(referenceDir, path);
 			};
 
 			Assert.Throws<InvalidOperationException>(() => faulty());
@@ -42,7 +42,7 @@ namespace XUnitTestProject1
 			string path = @"D:\Test1\Test2";
 			string referenceDir = @"D:\";
 
-			string result = PathPob.EnsureAbsolutePath(referenceDir, path);
+			string result = PathTechie.EnsureAbsolutePath(referenceDir, path);
 
 			Assert.True(result == path);
 		}
@@ -53,7 +53,7 @@ namespace XUnitTestProject1
 			string path = @"D:\Test1\Test2";
 			string referenceDir = @"D:\";
 
-			string result = PathPob.EnsureRelativeTo(referenceDir, path);
+			string result = PathTechie.EnsureRelativeTo(referenceDir, path);
 
 			Assert.True(result == "Test1\\Test2");
 		}
@@ -63,6 +63,15 @@ namespace XUnitTestProject1
         {
             new FileInfo("D:\\testx\\testy\\test.txt").EnsureDirectory();
             new DirectoryInfo(@"D:\1\2\3\4\5").Ensure();
+        }
+        
+        [Fact]
+        public void ExtractZippedFiles()
+        {
+            var zip = new Zip(@"D:\WorkflowDesigner.FullVersion\WorkflowClientApp2\wwwroot\WorkflowDesignerStaticContents\StaticContents.zip");
+
+            zip.ExtractFiles(@"D:\WorkflowDesigner.FullVersion\WorkflowClientApp2\wwwroot\WorkflowDesignerStaticContents",
+                             false);
         }
 	}
 }

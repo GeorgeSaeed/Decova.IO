@@ -7,7 +7,7 @@ using System.IO;
 
 namespace YouSubtle.IO
 {
-	public class PathPob
+	public class PathTechie
 	{
 		/// <summary>
 		/// Combines the provided segments of the desired path taking care of normalizing extra path separators
