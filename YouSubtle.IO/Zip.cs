@@ -80,6 +80,7 @@ namespace YouSubtle.IO
 
                     if(overwriteExistingFiles || !File.Exists(destinationPath))
                     {
+                        new FileInfo(destinationPath).EnsureDirectory();
 					    entry.ExtractToFile(destinationPath);
 					    destinationPaths.Add(destinationPath);
                     }
