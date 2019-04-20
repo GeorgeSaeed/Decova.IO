@@ -8,10 +8,10 @@ namespace YouSubtle
     internal static class IEnumerable
     {
         public static IEnumerable<T> FilterIf<T>(this IEnumerable<T> sourceEnumerable,
-                                                 Func<bool> filterationCondition,
+                                                 bool filterationCondition,
                                                  Func<T, bool> filter)
         {
-            if (filterationCondition == null) return sourceEnumerable;
+            if (filterationCondition == false) return sourceEnumerable;
 
             return sourceEnumerable.Where(filter);
         }

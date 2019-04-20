@@ -68,12 +68,12 @@ namespace YouSubtle.IO
 
 		public IEnumerable<string> ExtractFiles(string destinationDirectory,
                                                 bool overwriteExistingFiles,
-                                                Func<ZipArchiveEntry, bool> fileSelector = null)
+                                                Func<ZipArchiveEntry, bool> entryFilter = null)
 		{
 			List<string> destinationPaths = new List<string>();
 			using (ZipArchive archive = ZipFile.OpenRead(this._filePath))
 			{
-				foreach (var entry in archive.Entries.FilterIf(()=>fileSelector!=null, e => fileSelector(e)))
+				foreach (var entry in archive.Entries.FilterIf(entryFilter!=null, e => entryFilter(e)))
 				{
 					// Gets the full path to ensure that relative segments are removed.
 					string destinationPath = System.IO.Path.GetFullPath(Path.Combine(destinationDirectory, entry.FullName));
