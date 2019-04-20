@@ -19,7 +19,9 @@ namespace YouSubtle.IO
 		public string ReadEntryAllText(Func<ZipArchiveEntry, bool> singleFileSelector, 
                                        Encoding encoding = null)
 		{
-			string allText;
+            if (singleFileSelector == null) throw new ArgumentNullException("singleFileSelector");
+
+            string allText;
 
 			var archive = ZipFile.Open(this._filePath, ZipArchiveMode.Read);
 			var archiveEntry = archive.Entries.Single(e => singleFileSelector(e));
@@ -45,12 +47,18 @@ namespace YouSubtle.IO
 
 		public byte[] ReadEntryAllBytes(Func<ZipArchiveEntry, bool> singleFileSelector)
 		{
-			string entryEncoded = ReadEntryAllText(singleFileSelector, null);
+            if (singleFileSelector == null) throw new ArgumentNullException("singleFileSelector");
+
+            string entryEncoded = ReadEntryAllText(singleFileSelector, null);
 			return Encoding.Unicode.GetBytes(entryEncoded);
 		}
 
 		public void AddFileEntry(string entryfilePath, string entryName)
 		{
+
+            if (string.IsNullOrWhiteSpace(entryfilePath)) throw new ArgumentException("entryfilePath cannot be null or white space.");
+            if (File.Exists(entryfilePath) == false) throw new Exception($"File [{entryfilePath}] not found.");
+
 			using (var archive = ZipFile.Open(this._filePath, ZipArchiveMode.Update))
 			{
 				archive.CreateEntryFromFile(entryfilePath, entryName);
@@ -58,18 +66,23 @@ namespace YouSubtle.IO
 
 		}
 
-		public IEnumerable<string> ExtractFiles(Func<ZipArchiveEntry, bool> fileSelector, string destinationDirectory)
+		public IEnumerable<string> ExtractFiles(string destinationDirectory,
+                                                bool overwriteExistingFiles,
+                                                Func<ZipArchiveEntry, bool> fileSelector = null)
 		{
 			List<string> destinationPaths = new List<string>();
 			using (ZipArchive archive = ZipFile.OpenRead(this._filePath))
 			{
-				foreach (var entry in archive.Entries.Where(e => fileSelector(e)))
+				foreach (var entry in archive.Entries.FilterIf(()=>fileSelector!=null, e => fileSelector(e)))
 				{
 					// Gets the full path to ensure that relative segments are removed.
 					string destinationPath = System.IO.Path.GetFullPath(Path.Combine(destinationDirectory, entry.FullName));
 
-					entry.ExtractToFile(destinationPath);
-					destinationPaths.Add(destinationPath);
+                    if(overwriteExistingFiles || !File.Exists(destinationPath))
+                    {
+					    entry.ExtractToFile(destinationPath);
+					    destinationPaths.Add(destinationPath);
+                    }
 				}
 			}
 			return destinationPaths;
