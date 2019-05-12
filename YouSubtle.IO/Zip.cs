@@ -78,18 +78,18 @@ namespace YouSubtle.IO
 					// Gets the full path to ensure that relative segments are removed.
 					string destinationPath = System.IO.Path.GetFullPath(Path.Combine(destinationDirectory, entry.FullName));
 
-                    if (entry.Name == "")
+                    // empty string is for a folder
+                    if(entry.Name != "")
                     {
-                        new DirectoryInfo(destinationPath).Ensure();
-                    }
-                    else
-                    {
-                        if(overwriteExistingFiles || !File.Exists(destinationPath))
+                        new FileInfo(destinationPath).Directory.Ensure();
+                        if (overwriteExistingFiles || !File.Exists(destinationPath))
                         {
-					        entry.ExtractToFile(destinationPath);
+                            entry.ExtractToFile(destinationPath);
 					        destinationPaths.Add(destinationPath);
                         }
+
                     }
+                    
 				}
 			}
 			return destinationPaths;
