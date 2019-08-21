@@ -46,23 +46,22 @@ namespace YouSubtle
 		/// <param name="directParentDirSelector"></param>
 		/// <returns></returns>
 		public static IEnumerable<FileInfo> GetDescendentFiles( this DirectoryInfo _this, 
-																string searchPattern=null, 
-																Func<DirectoryInfo, bool> ignoreDirectory = null
+																Func<FileInfo, bool> fileFilter,
+                                                                Func<DirectoryInfo, bool> ignoreDirectory = null
 																)
 		{
-
 			List<FileInfo> files = new List<FileInfo>();
 
 			if (ignoreDirectory != null && ignoreDirectory(_this)) return files;
 
-			foreach(var file in _this.GetFiles(searchPattern))
+			foreach(var file in _this.GetFiles().Where(fileFilter).ToList())
 			{
 				files.Add(file);
 			}
 
 			foreach(var dir in _this.GetDirectories())
 			{
-				var childDirFiles = GetDescendentFiles(dir, searchPattern, ignoreDirectory);
+				var childDirFiles = GetDescendentFiles(dir, fileFilter, ignoreDirectory);
 				files.AddRange(childDirFiles);
 			}
 
