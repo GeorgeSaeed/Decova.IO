@@ -8,18 +8,24 @@ namespace YouSubtle
 {
 	public static class DirectoryInfoExtenssion
 	{
-		/// <summary>
-		/// Returns the first ancestor found that satisfies the chekcer function
-		/// </summary>
-		/// <param name="_this"></param>
-		/// <param name="checker"></param>
-		/// <returns></returns>
-		public static DirectoryInfo GetClosestAncestorWhere(this DirectoryInfo _this, Func<DirectoryInfo, bool> checker)
+        /// <summary>
+        /// Gets the closest ancestor that satisfies the dirPicker checker. If withinDirectory provided
+        /// the method stops traversing as soon as it reaches a directory that satisfies it.
+        /// </summary>
+        /// <param name="_this"></param>
+        /// <param name="dirPicker">The target directory condition checker</param>
+        /// <param name="withinDirectory">A ceiling directory to finish searching at if not found earlier.</param>
+        /// <returns></returns>
+        public static DirectoryInfo TryGetClosestAncestor(this DirectoryInfo _this,
+                                                          Func<DirectoryInfo, bool> dirPicker,
+                                                          Func<DirectoryInfo, bool> withinDirectory = null)
 		{
-			var stepParent = _this.Parent;
+            var stepParent = _this.Parent;
 			do
 			{
-				if(checker(stepParent))
+                if (withinDirectory == null && withinDirectory(stepParent)) return null;
+
+				if(dirPicker(stepParent))
 				{
 					return stepParent;
 				}
