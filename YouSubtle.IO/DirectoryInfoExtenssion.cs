@@ -23,7 +23,7 @@ namespace YouSubtle
             var stepParent = _this.Parent;
 			do
 			{
-                if (withinDirectory == null && withinDirectory(stepParent)) return null;
+                if (withinDirectory != null && withinDirectory(stepParent)) return null;
 
 				if(dirPicker(stepParent))
 				{

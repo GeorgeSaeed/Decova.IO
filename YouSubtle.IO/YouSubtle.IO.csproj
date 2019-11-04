@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netStandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.2.7</Version>
+    <Version>0.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="YouSubtle.Tasking" Version="0.2.2" />
-    <PackageReference Include="YouSubtle.Text" Version="1.0.2" />
+    <PackageReference Include="YouSubtle.Tasking" Version="0.2.3" />
+    <PackageReference Include="YouSubtle.Text" Version="1.0.4" />
   </ItemGroup>
 
 </Project>
