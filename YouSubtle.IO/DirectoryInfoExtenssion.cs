@@ -8,124 +8,184 @@ namespace YouSubtle
 {
 	public static class DirectoryInfoExtenssion
 	{
+        #region GetClosestAncestor()
+        //####################################################################
         /// <summary>
         /// Gets the closest ancestor that satisfies the dirPicker checker. If withinDirectory provided
         /// the method stops traversing as soon as it reaches a directory that satisfies it.
         /// </summary>
         /// <param name="_this"></param>
-        /// <param name="dirPicker">The target directory condition checker</param>
-        /// <param name="withinDirectory">A ceiling directory to finish searching at if not found earlier.</param>
+        /// <param name="ancestorPicker">The target directory condition checker</param>
+        /// <param name="withinDirectory">The function keep searches for a directory matches the "ancestorPicker" checker until either find it or the "withinDirectory" reached and doesn't match as well whichever is earlier. </param>
         /// <returns></returns>
-        public static DirectoryInfo TryGetClosestAncestor(this DirectoryInfo _this,
-                                                          Func<DirectoryInfo, bool> dirPicker,
-                                                          Func<DirectoryInfo, bool> withinDirectory = null)
-		{
+        public static DirectoryInfo GetClosestAncestor(this DirectoryInfo _this,
+                                                            Func<DirectoryInfo, bool> ancestorPicker,
+                                                            Func<DirectoryInfo, bool> withinDirectory = null)
+        {
+            if (ancestorPicker == null)
+                throw new ArgumentNullException(nameof(ancestorPicker));
+
+
+
             var stepParent = _this.Parent;
-			do
-			{
+            do
+            {
                 if (withinDirectory != null && withinDirectory(stepParent)) return null;
 
-				if(dirPicker(stepParent))
-				{
-					return stepParent;
-				}
-				else
-				{
-					stepParent = stepParent.Parent;
-				}
-			}
-			while (stepParent != null) ;
+                if (ancestorPicker(stepParent))
+                {
+                    return stepParent;
+                }
+                else
+                {
+                    stepParent = stepParent.Parent;
+                }
+            }
+            while (stepParent != null);
 
-			return null;
-		}
+            return null;
+        }
+        //####################################################################
+        #endregion
 
+        #region GetDescendantFiles()
+        //####################################################################
+        private static void GetDescendantFiles(this DirectoryInfo dir,
+                                               List<FileInfo> output,
+                                               Func<FileInfo, bool> pickFileIf = null,
+                                               Func<DirectoryInfo, bool> ignoreWithDescendantsIf = null
+                                               )
+        {
+            bool isPickable(FileInfo f)
+            {
+                return ((pickFileIf == null) || pickFileIf(f));
+            }
+            bool isIgnoredAsAWhole(DirectoryInfo d)
+            {
+                if (ignoreWithDescendantsIf == null) return false;
+                else return ignoreWithDescendantsIf(d);
+            }
 
-		/// <summary>
-		/// Returns all the descendent files the satisfy all arguments passed. If none of the arguments passed, it returns all descendent files.
-		/// </summary>
-		/// <param name="_this"></param>
-		/// <param name="searchPattern">The search string to match against the names of files. This parameter can contain
-		//     a combination of valid literal path and wildcard (* and ?) characters, but it
-		//     doesn't support regular expressions. The default pattern is "*", which returns
-		//     all files.</param>
-		/// <param name="ignoreDirectory">A function returns a boolean that determines whether to skip the argument directory or not.</param>
-		/// <param name="directParentDirSelector"></param>
-		/// <returns></returns>
-		public static IEnumerable<FileInfo> GetDescendentFiles( this DirectoryInfo _this, 
-																Func<FileInfo, bool> fileFilter,
-                                                                Func<DirectoryInfo, bool> ignoreDirectory = null
-																)
-		{
-			List<FileInfo> files = new List<FileInfo>();
+            output.AddRange(dir.GetFiles().Where(isPickable));
 
-			if (ignoreDirectory != null && ignoreDirectory(_this)) return files;
+            foreach(var childDir in dir.GetDirectories())
+            {
+                if (isIgnoredAsAWhole(childDir)) continue;
 
-			foreach(var file in _this.GetFiles().Where(fileFilter).ToList())
-			{
-				files.Add(file);
-			}
-
-			foreach(var dir in _this.GetDirectories())
-			{
-				var childDirFiles = GetDescendentFiles(dir, fileFilter, ignoreDirectory);
-				files.AddRange(childDirFiles);
-			}
-
-			return files;
-		}
+                GetDescendantFiles(childDir, pickFileIf, ignoreWithDescendantsIf);
+            }
+        }
 
 
+        /// <summary>
+        /// Returns the descendant files with filteration if any specified.
+        /// </summary>
+        /// <param name="_this"></param>
+        /// <param name="pickFileIf">A file filter.</param>
+        /// <param name="ignoreDirectoryIf">If provided and matched a descendant directory, the whole content of the directory will be ignored with all of its descendants.</param>
+        /// <returns></returns>
+        public static IEnumerable<FileInfo> GetDescendantFiles(this DirectoryInfo _this,
+                                                                Func<FileInfo, bool> pickFileIf = null,
+                                                                Func<DirectoryInfo, bool> ignoreDirectoryIf = null
+                                                                )
+        {
+            List<FileInfo> output = new List<FileInfo>();
 
-		/// <summary>
-		/// Returns all the descendent directories the satisfy all arguments passed. If none of the arguments passed, it returns all descendent files.
-		/// </summary>
-		/// <param name="_this"></param>
-		/// <param name="searchPattern">The search string to match against the names of directories. This parameter can contain
-		//     a combination of valid literal path and wildcard (* and ?) characters, but it
-		//     doesn't support regular expressions. The default pattern is "*", which returns
-		//     all files.</param>
-		/// <param name="fileSelector"></param>
-		/// <param name="directParentDirSelector"></param>
-		/// <returns></returns>
-		public static IEnumerable<DirectoryInfo> GetDescendentDirectories(this DirectoryInfo _this, string searchPattern=null)
-		{
-			List<DirectoryInfo> output = new List<DirectoryInfo>();
-			foreach(var directory in _this.GetDirectories(searchPattern))
-			{
-				output.Add(directory);
-			}
+            GetDescendantFiles(_this, output, pickFileIf, ignoreDirectoryIf);
 
-			foreach(var dir in _this.GetDirectories())
-			{
-				output.AddRange(GetDescendentDirectories(dir, searchPattern));
-			}
+            return output;
+        }
+        //####################################################################
+        #endregion
 
-			return output;
-		}
-	
-		/// <summary>
-		/// Returns true if the item (file or directory path) existis and it's a descendant of this directory.
-		/// </summary>
-		/// <param name="_this"></param>
-		/// <param name="fileOrDirectoryPath"></param>
-		/// <returns></returns>
-		public static bool BelongsToMe(this DirectoryInfo _this, string fileOrDirectoryPath)
-		{
-			if(fileOrDirectoryPath.Length < _this.FullName.Length)
-			{
-				return false;
-			}
-			else if(fileOrDirectoryPath.Substring(0, _this.FullName.Length) != _this.FullName)
-			{
-				return false;
-			}
-			else
-			{
-				return File.Exists(fileOrDirectoryPath) || Directory.Exists(fileOrDirectoryPath);
-			}
-		}
+        #region GetDescendentDirectories()
+        //####################################################################
+        private static void GetDescendantDirectories(this DirectoryInfo dir,
+                                      List<DirectoryInfo> output,
+                                      Func<DirectoryInfo, bool> pickDirectoryIf = null,
+                                      Func<DirectoryInfo, bool> ignoreWithDescendantsIf = null)
+        {
+            #region simplifying checkers
+            //####################################################################
+            bool isPickable(DirectoryInfo d)
+            {
+                return ((pickDirectoryIf == null) || pickDirectoryIf(d));
+            }
+            bool isIgnoredAsAWhole(DirectoryInfo d)
+            {
+                if (ignoreWithDescendantsIf == null) return false;
+                else return ignoreWithDescendantsIf(d);
+            }
+            //####################################################################
+            #endregion
+
+            if (isIgnoredAsAWhole(dir)) return;
+
+            if (isPickable(dir))
+            {
+                output.Add(dir);
+            }
+
+            foreach (var child in dir.GetDirectories())
+            {
+                GetDescendantDirectories(child, pickDirectoryIf, ignoreWithDescendantsIf);
+            }
+        }
+
+        /// <summary>
+        /// Returns all the descendant directories the satisfy all arguments passed. 
+        /// </summary>
+        /// <param name="_this"></param>
+        /// <param name="pickDirectoryIf">If provided the directory is picked only if evaluates to true. If evaluates to false the directory will not be picked but its descendants are still applicable for picking.</param>
+        /// <param name="ignoreWithDescendantsIf">If provided and matched a directory, the whole content of the directory will be ignored. This doesn't apply on the provided search root "dir".</param>
+        /// <returns></returns>
+        public static IEnumerable<DirectoryInfo> GetDescendantDirectories(this DirectoryInfo _this,
+                                                                          Func<DirectoryInfo, bool> pickDirectoryIf = null,
+                                                                          Func<DirectoryInfo, bool> ignoreWithDescendantsIf = null)
+        {
 
 
+
+            List<DirectoryInfo> output = new List<DirectoryInfo>();
+            foreach (var child in _this.GetDirectories())
+            {
+                GetDescendantDirectories(child, pickDirectoryIf, ignoreWithDescendantsIf);
+            }
+            return output;
+        }
+
+        //####################################################################
+        #endregion
+
+        #region BelongsToMe()
+        //####################################################################
+        /// <summary>
+        /// Returns true if the item (file or directory path) exists and it's a Descendant of this directory.
+        /// </summary>
+        /// <param name="_this"></param>
+        /// <param name="fileOrDirectoryPath"></param>
+        /// <returns></returns>
+        public static bool BelongsToMe(this DirectoryInfo _this, string fileOrDirectoryPath)
+        {
+            if (fileOrDirectoryPath.Length < _this.FullName.Length)
+            {
+                return false;
+            }
+            else if (fileOrDirectoryPath.Substring(0, _this.FullName.Length) != _this.FullName)
+            {
+                return false;
+            }
+            else
+            {
+                return File.Exists(fileOrDirectoryPath)
+                    || Directory.Exists(fileOrDirectoryPath);
+            }
+        }
+        //####################################################################
+        #endregion
+
+        #region Ensure Directory
+        //####################################################################
         /// <summary>
         /// Ensures the existence of the directory. Only the drive pre-existence is required. All parts of hierarchy
         /// will be created if not existing.
@@ -169,5 +229,7 @@ namespace YouSubtle
             }
         }
 
+        //####################################################################
+        #endregion
     }
 }
