@@ -184,7 +184,7 @@ namespace YouSubtle
         //####################################################################
         #endregion
 
-        #region Ensure Directory
+        #region Ensure()
         //####################################################################
         /// <summary>
         /// Ensures the existence of the directory. Only the drive pre-existence is required. All parts of hierarchy
@@ -193,7 +193,7 @@ namespace YouSubtle
         /// <param name="directory"></param>
         public static void Ensure(this DirectoryInfo directory)
         {
-            if (directory == null) throw new ArgumentNullException("directory");
+            if (directory == null) throw new ArgumentNullException(nameof(directory));
 
             bool success = false;
 

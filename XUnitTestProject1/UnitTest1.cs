@@ -73,5 +73,16 @@ namespace XUnitTestProject1
             zip.ExtractFiles(@"D:\WorkflowDesigner.FullVersion\WorkflowClientApp2\wwwroot\WorkflowDesignerStaticContents",
                              false);
         }
+
+        [Fact]
+        public void ReplaceEntry()
+        {
+            var zip = new Zip(@"G:\_MyProjects\YouSubtle.Iris.Foundation\YouSubtle.Iris.Abstraction\bin\Debug\YouSubtle.Iris.Abstraction.1.0.5.nupkg");
+            zip.AddFile("lib/netstandard2.0/YouSubtle.Iris.Abstraction.dll",
+                        ///*Take non-protected*/@"G:\_MyProjects\YouSubtle.Iris.Foundation\YouSubtle.Iris.Abstraction\bin\Debug\netstandard2.0\YouSubtle.Iris.Abstraction.dll",
+                        /*Take protected*/@"G:\_MyProjects\YouSubtle.Iris.Foundation\YouSubtle.Iris.Abstraction\bin\Debug\netstandard2.0\YouSubtle.Iris.Abstraction_Secure\YouSubtle.Iris.Abstraction.dll",
+                        true,
+                        out Exception exception);
+        }
 	}
 }
