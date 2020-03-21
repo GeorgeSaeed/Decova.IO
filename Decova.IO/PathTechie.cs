@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using YouSubtle;
 using System.IO;
 
-namespace YouSubtle.IO
+namespace Decova.IO
 {
 	public class PathTechie
 	{

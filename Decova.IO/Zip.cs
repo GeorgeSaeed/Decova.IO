@@ -4,9 +4,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using YouSubtle.Tasking;
 
-namespace YouSubtle.IO
+namespace Decova.IO
 {
 	public class Zip
 	{
@@ -73,7 +72,7 @@ namespace YouSubtle.IO
                         new FileInfo(destinationPath).Directory.Ensure();
                         if (overwriteExistingFiles || !File.Exists(destinationPath))
                         {
-                            entry.ExtractToFile(destinationPath);
+                            entry.ExtractToFile(destinationPath, overwriteExistingFiles);
 					        destinationPaths.Add(destinationPath);
                         }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace YouSubtle
+namespace Decova
 {
     internal static class IEnumerable
     {

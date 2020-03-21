@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace YouSubtle
+namespace Decova
 {
 	public static class DirectoryInfoExtenssion
 	{
@@ -58,21 +58,42 @@ namespace YouSubtle
         {
             bool isPickable(FileInfo f)
             {
-                return ((pickFileIf == null) || pickFileIf(f));
+                try
+                {
+                    return ((pickFileIf == null) || pickFileIf(f));
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
             bool isIgnoredAsAWhole(DirectoryInfo d)
             {
-                if (ignoreWithDescendantsIf == null) return false;
-                else return ignoreWithDescendantsIf(d);
+                try
+                {
+                    if (ignoreWithDescendantsIf == null) return false;
+                    else return ignoreWithDescendantsIf(d);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
 
-            output.AddRange(dir.GetFiles().Where(isPickable));
-
-            foreach(var childDir in dir.GetDirectories())
+            try
             {
-                if (isIgnoredAsAWhole(childDir)) continue;
+                output.AddRange(dir.GetFiles().Where(isPickable));
 
-                GetDescendantFiles(childDir, pickFileIf, ignoreWithDescendantsIf);
+                foreach (var childDir in dir.GetDirectories())
+                {
+                    if (isIgnoredAsAWhole(childDir)) continue;
+
+                    GetDescendantFiles(childDir, output, pickFileIf, ignoreWithDescendantsIf);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -128,7 +149,7 @@ namespace YouSubtle
 
             foreach (var child in dir.GetDirectories())
             {
-                GetDescendantDirectories(child, pickDirectoryIf, ignoreWithDescendantsIf);
+                GetDescendantDirectories(child, output, pickDirectoryIf, ignoreWithDescendantsIf);
             }
         }
 
@@ -143,14 +164,8 @@ namespace YouSubtle
                                                                           Func<DirectoryInfo, bool> pickDirectoryIf = null,
                                                                           Func<DirectoryInfo, bool> ignoreWithDescendantsIf = null)
         {
-
-
-
             List<DirectoryInfo> output = new List<DirectoryInfo>();
-            foreach (var child in _this.GetDirectories())
-            {
-                GetDescendantDirectories(child, pickDirectoryIf, ignoreWithDescendantsIf);
-            }
+            GetDescendantDirectories(_this, output, pickDirectoryIf, ignoreWithDescendantsIf);
             return output;
         }
 

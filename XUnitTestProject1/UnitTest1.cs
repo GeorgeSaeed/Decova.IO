@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using Xunit;
-using YouSubtle;
-using YouSubtle.IO;
+using Decova.IO;
+using Decova;
 
 namespace XUnitTestProject1
 {
@@ -83,6 +83,13 @@ namespace XUnitTestProject1
                         /*Take protected*/@"G:\_MyProjects\YouSubtle.Iris.Foundation\YouSubtle.Iris.Abstraction\bin\Debug\netstandard2.0\YouSubtle.Iris.Abstraction_Secure\YouSubtle.Iris.Abstraction.dll",
                         true,
                         out Exception exception);
+        }
+
+        [Fact]
+        public void GetDescendentFiles()
+        {
+            var dir = new DirectoryInfo(@"G:\_MyProjects\YouSubtle.JetSuit\YouSubtle.JetSuit\bin");
+            var files = dir.GetDescendantFiles(f => f.Name.ToLower() == "YouSubtle.JetSuit.CommandPad.sln".ToLower());
         }
 	}
 }

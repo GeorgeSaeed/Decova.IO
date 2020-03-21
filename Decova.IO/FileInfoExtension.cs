@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace YouSubtle
+namespace Decova
 {
     public static class FileInfoExtension
     {

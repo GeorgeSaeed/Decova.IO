@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YouSubtle.IO\YouSubtle.IO.csproj" />
+    <ProjectReference Include="..\Decova.IO\Decova.IO.csproj" />
   </ItemGroup>
 
 </Project>
