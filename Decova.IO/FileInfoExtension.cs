@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace Decova
+namespace System
 {
     public static class FileInfoExtension
     {

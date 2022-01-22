@@ -86,10 +86,10 @@ namespace XUnitTestProject1
         }
 
         [Fact]
-        public void GetDescendentFiles()
+        public async void GetDescendentFiles()
         {
             var dir = new DirectoryInfo(@"G:\_MyProjects\YouSubtle.JetSuit\YouSubtle.JetSuit\bin");
-            var files = dir.GetDescendantFiles(f => f.Name.ToLower() == "YouSubtle.JetSuit.CommandPad.sln".ToLower());
+            //dir.GetDescendantFilesAsync(f => f.Name.ToLower() == "YouSubtle.JetSuit.CommandPad.sln".ToLower());
         }
 	}
 }
