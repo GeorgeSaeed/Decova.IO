@@ -17,14 +17,11 @@ namespace System
         /// <param name="withinDirectory">A ceiling directory to finish searching at if not found earlier.</param>
         /// <returns></returns>
         public static DirectoryInfo TryGetClosestAncestor(this FileInfo _this, 
-                                                          Func<DirectoryInfo, bool> dirPicker, 
-                                                          Func<DirectoryInfo, bool> withinDirectory = null)
+                                                          Func<DirectoryInfo, bool> dirPicker)
 		{
 			var stepParent = _this.Directory;
 			do
 			{
-                if (withinDirectory == null || withinDirectory(stepParent)) return null;
-
 				if(dirPicker(stepParent))
 				{
 					return stepParent;

@@ -55,6 +55,7 @@ public static class DirectoryInfoExtenssion
                                                     Action<FileInfo> onFileMatched,
                                                     Func<FileInfo, bool> pickFileIf = null,
                                                     Func<DirectoryInfo, bool> ignoreEntireDirectoryIf = null,
+                                                    Action<DirectoryInfo, Exception> onException = null,
                                                     CancellationToken? cancellationToken = null
                                                     )
     {
@@ -97,13 +98,13 @@ public static class DirectoryInfoExtenssion
                 await GetDescendantFilesAsync(childDir, onFileMatched, pickFileIf, ignoreEntireDirectoryIf);
             }
         }
-        catch (UnauthorizedAccessException unauthExpt)
+        //catch (UnauthorizedAccessException unauthExpt)
+        //{
+        //    return;
+        //}
+        catch (Exception expt)
         {
-            return;
-        }
-        catch (Exception)
-        {
-            throw;
+            onException?.Invoke(dir, expt);
         }
     }
 
